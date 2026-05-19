@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="theme-color" content="#1a1530" />
+<title>謎解きパーティー</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- タイトル画面 -->
+<section id="screen-title" class="screen active">
+  <div class="title-wrap">
+    <h1 class="title">謎解き<br />パーティー</h1>
+    <p class="subtitle">2人以上で楽しむ協力ナゾトキ</p>
+    <div class="menu">
+      <button class="btn primary" data-goto="setup" data-mode="story">📖 ストーリーモード</button>
+      <button class="btn primary" data-goto="setup" data-mode="endless">♾️ ひたすら謎解きモード</button>
+      <button class="btn ghost" data-goto="howto">遊び方</button>
+    </div>
+    <p class="footer-note">スマホを回しながら、協力して謎を解こう</p>
+  </div>
+</section>
+
+<!-- 遊び方 -->
+<section id="screen-howto" class="screen">
+  <header class="topbar">
+    <button class="icon-btn" data-goto="title">←</button>
+    <h2>遊び方</h2>
+  </header>
+  <div class="content">
+    <ol class="howto-list">
+      <li>2人以上のプレイヤー名を入力</li>
+      <li>難易度を選んでスタート</li>
+      <li>順番に1問ずつ謎を解く（協力もOK）</li>
+      <li>正解で +10点 / ヒント使用で +5点</li>
+      <li>画面右下の<strong>📝メモ</strong>ボタンで自由に書き込める</li>
+      <li>ストーリーモードは全問クリアでエンディング</li>
+      <li>ひたすらモードは「終了」を押すまで続く</li>
+    </ol>
+  </div>
+</section>
+
+<!-- セットアップ -->
+<section id="screen-setup" class="screen">
+  <header class="topbar">
+    <button class="icon-btn" data-goto="title">←</button>
+    <h2 id="setup-title">設定</h2>
+  </header>
+  <div class="content">
+    <div class="field">
+      <label>難易度</label>
+      <div class="seg" id="difficulty-seg">
+        <button class="seg-btn active" data-difficulty="easy">イージー</button>
+        <button class="seg-btn" data-difficulty="normal">ノーマル</button>
+        <button class="seg-btn" data-difficulty="hard">ハード</button>
+      </div>
+      <p class="hint" id="difficulty-hint">やさしめの謎。初心者・お子様向け。</p>
+    </div>
+
+    <div class="field">
+      <label>プレイヤー（2〜6人）</label>
+      <div id="players-list"></div>
+      <div class="row">
+        <button class="btn small ghost" id="add-player">＋ プレイヤー追加</button>
+        <button class="btn small ghost" id="remove-player">− 削除</button>
+      </div>
+    </div>
+
+    <button class="btn primary large" id="start-btn">▶ スタート</button>
+  </div>
+</section>
+
+<!-- 謎解き画面 -->
+<section id="screen-puzzle" class="screen">
+  <header class="topbar">
+    <button class="icon-btn" id="quit-btn" title="やめる">×</button>
+    <div class="progress">
+      <span id="progress-text">1 / 5</span>
+      <div class="bar"><div class="bar-fill" id="progress-fill"></div></div>
+    </div>
+    <span class="diff-badge" id="diff-badge">EASY</span>
+    <button class="icon-btn" id="end-btn" title="終了して結果へ" style="background:rgba(251,207,103,0.25)">🏁</button>
+  </header>
+
+  <div class="turn-banner">
+    <span class="turn-label">いまの番:</span>
+    <span class="turn-name" id="current-player">プレイヤー1</span>
+  </div>
+
+  <div class="content puzzle-content">
+    <div class="puzzle-card">
+      <div class="puzzle-type" id="puzzle-type">なぞなぞ</div>
+      <div class="puzzle-question" id="puzzle-question"></div>
+      <div class="puzzle-choices" id="puzzle-choices"></div>
+      <div class="puzzle-input-wrap" id="puzzle-input-wrap">
+        <input type="text" id="puzzle-input" placeholder="答えを入力" autocomplete="off" inputmode="text" />
+        <button class="btn primary" id="submit-btn">回答</button>
+      </div>
+      <div class="puzzle-actions">
+        <button class="btn ghost small" id="hint-btn">💡 ヒント</button>
+        <button class="btn ghost small" id="pass-btn">パス</button>
+      </div>
+      <div class="hint-box hidden" id="hint-box"></div>
+    </div>
+
+    <div class="scoreboard" id="scoreboard"></div>
+  </div>
+
+  <!-- メモボタン -->
+  <button class="memo-fab" id="memo-toggle" aria-label="メモを開く">📝</button>
+</section>
+
+<!-- リザルト -->
+<section id="screen-result" class="screen">
+  <div class="result-wrap">
+    <h2 id="result-title">クリア！</h2>
+    <p id="result-sub" class="result-sub"></p>
+    <div class="result-scores" id="result-scores"></div>
+    <div class="menu">
+      <button class="btn primary" id="result-again">もう一度プレイ</button>
+      <button class="btn ghost" data-goto="title">タイトルへ</button>
+    </div>
+  </div>
+</section>
+
+<!-- メモオーバーレイ -->
+<div id="memo-overlay" class="memo-overlay hidden">
+  <div class="memo-toolbar">
+    <button class="tool-btn active" data-tool="pen-black" title="黒ペン">●</button>
+    <button class="tool-btn" data-tool="pen-red" title="赤ペン" style="color:#e84a4a">●</button>
+    <button class="tool-btn" data-tool="pen-blue" title="青ペン" style="color:#4a8be8">●</button>
+    <button class="tool-btn" data-tool="eraser" title="消しゴム">⌫</button>
+    <button class="tool-btn" id="memo-clear" title="全消し">🗑</button>
+    <span class="memo-spacer"></span>
+    <button class="tool-btn" id="memo-close" title="閉じる">✕</button>
+  </div>
+  <canvas id="memo-canvas"></canvas>
+  <div class="memo-hint">画面に指で書き込めます</div>
+</div>
+
+<!-- トースト -->
+<div id="toast" class="toast hidden"></div>
+
+<script src="puzzles.js"></script>
+<script src="memo.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
