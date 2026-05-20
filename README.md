@@ -2,19 +2,9 @@
 
 スマホで2人以上で楽しむ、ナゾトキ協力プレイアプリ。
 
-## 起動方法
+**公開URL**: https://anzaihikaru.github.io/nazotoki-party/
 
-`index.html` をブラウザでダブルクリックで開くだけ。
-ビルドや依存パッケージは不要（Vanilla HTML/CSS/JS）。
-
-スマホで遊ぶときは:
-
-```powershell
-# 開発用サーバを立ててLAN内のスマホからアクセス（任意）
-cd C:\Users\hikar\OneDrive\デスクトップ\謎解き
-python -m http.server 8080
-# → http://<PCのIP>:8080/  をスマホで開く
-```
+![QR](qr.png)
 
 ## 機能
 
@@ -22,35 +12,68 @@ python -m http.server 8080
 - **ひたすら謎解きモード**: 各難易度のプールからランダム出題、無限に続く
 - **難易度**: イージー / ノーマル / ハード
 - **2〜6人プレイ**: 同じスマホを回しながら順番に回答
-- **スコア**: 正解+10pt、ヒント使用後の正解+5pt
+- **スコア**: 正解 +10pt、ヒント使用後の正解 +5pt
 - **メモ機能**: 画面右下📝ボタンで全画面メモ。3色ペン / 消しゴム / 全消し
+- **画像系の謎**: emoji・SVG・ありなし・グリッドなど視覚パズル対応
+
+## ローカルで動かす
+
+`index.html` をブラウザでダブルクリックで開くだけ。
+ビルドや依存パッケージは不要（Vanilla HTML/CSS/JS）。
+
+スマホで遊ぶときは（同じWi-Fi内）：
+
+```powershell
+cd C:\Users\hikar\OneDrive\デスクトップ\謎解き
+npx http-server -p 8080 -a 0.0.0.0
+# → http://<PCのIP>:8080/  をスマホで開く
+```
 
 ## ファイル構成
 
 ```
 index.html   画面構造
 style.css    スタイル（モバイルファースト）
-puzzles.js   謎データ（簡単に追加可能）
+puzzles.js   謎データ + APP_VERSION
 memo.js      Canvas手書きメモ
 app.js       画面遷移とゲーム進行
+qr.png       本番URLのQRコード
 ```
 
 ## 謎を追加する
 
-`puzzles.js` の `ENDLESS[難易度]` 配列に追加。
+`puzzles.js` の `ENDLESS[難易度]` 配列に追加するだけ。
 
 ```js
 {
-  type: "なぞなぞ",
+  type: "なぞなぞ",           // 表示カテゴリ（絵文字つけても可）
   q: "問題文",
+  html: `<div>SVG等のHTML</div>`, // ← 任意。画像系の謎で使用
   hint: "ヒント文",
-  a: ["正解", "代替正解1"],
-  // choices: ["選択肢1", "選択肢2"],  // あれば選択式に
+  a: ["正解", "代替正解"],
+  // choices: ["選択肢1", "選択肢2"],  // ← あれば選択式に
 }
 ```
 
-## カスタマイズ
+## デプロイ
 
-- 配色: `style.css` のグラデーションを変更
-- 難易度説明: `puzzles.js` の `DIFFICULTY_INFO`
-- スコア計算: `app.js` の `handleAnswer` 内
+GitHub Pages で公開中。ソース更新 → push で自動反映：
+
+```powershell
+git add -A
+git commit -m "新しい謎を追加"
+git push
+```
+
+1〜2分後に https://anzaihikaru.github.io/nazotoki-party/ が更新されます。
+
+## バージョン履歴
+
+- **v0.2.0** (2026-05-20)
+  - 謎を全面リニューアル（合計33問+ストーリー5話）
+  - 大人なぞなぞ系（同音異義・ダジャレ）を多数追加
+  - 画像ベース謎を追加：emoji・ありなし・グリッド・SVG暗号
+  - タイトル/結果画面にバージョン表示
+- **v0.1.0** (2026-05-20) - 初版
+  - 基本フレーム、ストーリー＋ひたすら2モード
+  - メモ機能、スコア機能、難易度3段階

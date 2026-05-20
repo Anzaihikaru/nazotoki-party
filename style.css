@@ -63,7 +63,14 @@ input { font-family: inherit; }
   line-height: 1.1;
 }
 .subtitle { color: #c5bce0; margin: 0 0 36px; font-size: 14px; }
-.footer-note { color: #8a82a8; font-size: 12px; margin-top: 32px; }
+.footer-note { color: #8a82a8; font-size: 12px; margin-top: 32px; margin-bottom: 4px; }
+.version-tag {
+  color: #5a527a;
+  font-size: 10px;
+  margin: 0;
+  letter-spacing: 0.1em;
+  font-family: "SFMono-Regular", Consolas, monospace;
+}
 
 /* ===== Menu / Buttons ===== */
 .menu { display: flex; flex-direction: column; gap: 14px; }
@@ -226,6 +233,89 @@ input { font-family: inherit; }
   margin: 2px 0;
   letter-spacing: 0.1em;
 }
+
+/* ===== Visual puzzle area ===== */
+.puzzle-visual { margin: -8px 0 20px; }
+.puzzle-visual:empty { display: none; }
+
+/* イラスト謎: emoji横並び＋矢印＋ラベル */
+.emoji-grid {
+  display: flex; justify-content: space-around; gap: 8px;
+  background: rgba(0,0,0,0.25);
+  padding: 16px 8px;
+  border-radius: 14px;
+}
+.emoji-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  flex: 1;
+}
+.emoji-big { font-size: 40px; line-height: 1; }
+.emoji-arrow { font-size: 18px; color: #fbcf67; line-height: 1; }
+.emoji-label { font-size: 14px; color: #d8d2ef; font-weight: 600; letter-spacing: 0.05em; }
+.emoji-label .pick {
+  display: inline-block;
+  background: #fbcf67;
+  color: #1a1530;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-weight: 800;
+}
+
+/* ありなし謎: 左右2列 */
+.arinashi {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: rgba(0,0,0,0.25);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.arinashi-col { padding: 12px; }
+.arinashi-col + .arinashi-col { border-left: 2px solid rgba(255,255,255,0.1); }
+.arinashi-head {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding-bottom: 8px;
+  letter-spacing: 0.1em;
+  border-bottom: 1px dashed rgba(255,255,255,0.15);
+  margin-bottom: 8px;
+}
+.arinashi-col.aru .arinashi-head { color: #6acf90; }
+.arinashi-col.nai .arinashi-head { color: #e87575; }
+.arinashi-list { list-style: none; padding: 0; margin: 0; text-align: center; font-size: 16px; }
+.arinashi-list li { padding: 4px 0; }
+
+/* 記号暗号 / SVG */
+.symbol-cipher {
+  background: rgba(0,0,0,0.25);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+.symbol-cipher svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+/* グリッドパズル */
+.grid-puzzle {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  background: rgba(0,0,0,0.25);
+  padding: 10px;
+  border-radius: 14px;
+  max-width: 240px;
+  margin: 0 auto;
+}
+.grid-cell {
+  aspect-ratio: 1 / 1;
+  background: rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  border-radius: 6px;
+  color: #f4f1ff;
+}
+.grid-cell.q { background: rgba(251, 207, 103, 0.3); color: #fbcf67; }
+.grid-cell.empty { background: transparent; }
 
 .puzzle-choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .choice-btn {

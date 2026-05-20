@@ -188,6 +188,9 @@
     // 内容
     $("#puzzle-type").textContent = p.type || "謎";
     $("#puzzle-question").textContent = p.q;
+    // ビジュアル（HTML/SVG）があれば挿入
+    const visEl = $("#puzzle-visual");
+    visEl.innerHTML = p.html || "";
 
     // 選択肢 or 入力
     const choicesEl = $("#puzzle-choices");
@@ -337,6 +340,11 @@
   $("#memo-toggle").addEventListener("click", () => {
     if (memo.isOpen()) memo.close();
     else memo.open();
+  });
+
+  // ====== バージョン表示 ======
+  $$('.version-text').forEach((el) => {
+    el.textContent = window.APP_VERSION || "0.0.0";
   });
 
   // ====== 初期化 ======
