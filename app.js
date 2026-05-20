@@ -4,7 +4,7 @@
 (function () {
   // ====== 状態 ======
   const state = {
-    mode: "endless",        // "story" or "endless"
+    mode: "endless",        // "story" | "endless" | "solo"
     difficulty: "easy",     // "easy" | "normal" | "hard"
     players: ["プレイヤー1", "プレイヤー2"],
     scores: [],             // [10, 0, ...]
@@ -12,6 +12,7 @@
     puzzles: [],            // 今回出題する配列
     cursor: 0,              // 進行中index
     hintUsed: false,
+    answerRevealed: false,  // この問題で「答えを表示」を押したか
     answered: 0,
     correct: 0,
   };
@@ -42,7 +43,6 @@
     return String(s).trim().toLowerCase().replace(/\s+/g, "");
   }
 
-  // 配列シャッフル
   function shuffle(arr) {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -52,12 +52,27 @@
     return a;
   }
 
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[c]));
+  }
+
+  // モード判定ユーティリティ
+  function isSolo() { return state.mode === "solo"; }
+
   // ====== タイトル → 設定 ======
   $$('[data-goto]').forEach((btn) => {
     btn.addEventListener("click", () => {
       const dest = btn.dataset.goto;
       if (dest === "setup") {
         state.mode = btn.dataset.mode || "endless";
+        // soloモードならプレイヤーを1人に揃える
+        if (isSolo()) {
+          state.players = ["あなた"];
+        } else if (state.players.length < 2) {
+          state.players = ["プレイヤー1", "プレイヤー2"];
+        }
         renderSetup();
       }
       showScreen(dest);
@@ -84,9 +99,17 @@
   });
 
   function renderSetup() {
-    $("#setup-title").textContent =
-      state.mode === "story" ? "ストーリーモード設定" : "ひたすら謎解き設定";
-    renderPlayers();
+    const titles = { story: "ストーリーモード設定", endless: "ひたすら謎解き設定", solo: "おひとり様モード設定" };
+    $("#setup-title").textContent = titles[state.mode] || "設定";
+
+    // おひとり様モードはプレイヤー設定欄ごと非表示
+    const playerField = $("#players-field");
+    if (isSolo()) {
+      playerField.classList.add("hidden");
+    } else {
+      playerField.classList.remove("hidden");
+      renderPlayers();
+    }
     updateDifficultyHint();
   }
 
@@ -106,12 +129,6 @@
       });
       list.appendChild(row);
     });
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-    }[c]));
   }
 
   $("#add-player").addEventListener("click", () => {
@@ -153,9 +170,9 @@
     state.correct = 0;
 
     if (state.mode === "story") {
-      // ストーリーは難易度に関わらず固定（ただし結果画面で難易度倍率）
       state.puzzles = window.STORY.chapters.slice();
     } else {
+      // endless と solo は同じ：難易度ごとのプールからシャッフル
       const pool = window.PUZZLES[state.difficulty];
       state.puzzles = shuffle(pool);
     }
@@ -177,18 +194,22 @@
         : `第 ${state.cursor + 1} 問 / クリア${state.correct}`;
     $("#progress-fill").style.width = ((state.cursor) / total * 100) + "%";
 
-    const diff = state.mode === "story" ? "story" : state.difficulty;
     const badge = $("#diff-badge");
     badge.className = "diff-badge " + (state.mode === "story" ? "" : state.difficulty);
     badge.textContent = state.mode === "story" ? "STORY" : state.difficulty.toUpperCase();
 
-    // ターン
-    $("#current-player").textContent = state.players[state.turn];
+    // ターンバナー：soloは非表示
+    const turnBanner = $(".turn-banner");
+    if (isSolo()) {
+      turnBanner.classList.add("hidden");
+    } else {
+      turnBanner.classList.remove("hidden");
+      $("#current-player").textContent = state.players[state.turn];
+    }
 
     // 内容
     $("#puzzle-type").textContent = p.type || "謎";
     $("#puzzle-question").textContent = p.q;
-    // ビジュアル（HTML/SVG）があれば挿入
     const visEl = $("#puzzle-visual");
     visEl.innerHTML = p.html || "";
 
@@ -207,24 +228,28 @@
       });
     } else {
       inputWrap.classList.remove("hidden");
-      const inp = $("#puzzle-input");
-      inp.value = "";
-      // 自動フォーカスはモバイルでキーボードが問題文を隠すので避ける
+      $("#puzzle-input").value = "";
     }
 
-    // ヒント
+    // ヒント・答え表示状態をリセット
     state.hintUsed = false;
+    state.answerRevealed = false;
     $("#hint-box").classList.add("hidden");
+    $("#answer-box").classList.add("hidden");
     $("#hint-btn").disabled = false;
+    $("#reveal-btn").disabled = false;
 
-    // スコアボード
+    // スコアボード（soloは非表示）
     renderScoreboard();
-
-    // メモ：問題切り替え時はそのまま残す（プレイヤー判断）
   }
 
   function renderScoreboard() {
     const sb = $("#scoreboard");
+    if (isSolo()) {
+      sb.classList.add("hidden");
+      return;
+    }
+    sb.classList.remove("hidden");
     sb.innerHTML = "";
     state.players.forEach((name, i) => {
       const chip = document.createElement("div");
@@ -248,6 +273,11 @@
   });
 
   function handleAnswer(input) {
+    if (state.answerRevealed) {
+      // 答え表示後は採点せず、次へ進める専用処理
+      advance(false);
+      return;
+    }
     const p = state.puzzles[state.cursor];
     const answers = Array.isArray(p.a) ? p.a : [p.a];
     const ok = answers.some((a) => normalize(a) === normalize(input));
@@ -260,8 +290,6 @@
       advance(true);
     } else {
       toast("ちがうみたい…", "wrong");
-      // 不正解はターンは進めず、再挑戦可能。だがパスもできる。
-      // ただし無限ループ防止に何もしない（プレイヤーが「パス」で次へ）。
     }
   }
 
@@ -278,6 +306,21 @@
     $("#hint-btn").disabled = true;
   });
 
+  // 答えを表示（v0.3.0 新機能）
+  $("#reveal-btn").addEventListener("click", () => {
+    if (state.answerRevealed) return;
+    if (!confirm("この問題の答えを表示しますか？\n（その問題はスコア対象外になります）")) return;
+    const p = state.puzzles[state.cursor];
+    const answers = Array.isArray(p.a) ? p.a : [p.a];
+    const main = answers[0];
+    state.answerRevealed = true;
+    const box = $("#answer-box");
+    box.innerHTML = `<strong>答え：</strong>${escapeHtml(main)}`;
+    box.classList.remove("hidden");
+    $("#reveal-btn").disabled = true;
+    toast("答えを表示しました");
+  });
+
   $("#pass-btn").addEventListener("click", () => {
     if (!confirm("この問題をパスしますか？\n（次の問題へ進み、ターンも交代します）")) return;
     toast("パスしました");
@@ -286,14 +329,15 @@
 
   function advance(wasCorrect) {
     state.answered++;
-    // ターン交代
-    state.turn = (state.turn + 1) % state.players.length;
+    // ターン交代（soloはターンの概念なし）
+    if (!isSolo()) {
+      state.turn = (state.turn + 1) % state.players.length;
+    }
     state.cursor++;
 
     if (state.cursor >= state.puzzles.length) {
-      // ストーリー or エンドレスのループ
       if (state.mode === "story") return endGame();
-      // エンドレス：プール再シャッフルして継続
+      // endless / solo：プール再シャッフルして継続
       const pool = window.PUZZLES[state.difficulty];
       state.puzzles = state.puzzles.concat(shuffle(pool));
     }
@@ -308,6 +352,8 @@
     let sub;
     if (isStory) {
       sub = window.STORY.ending;
+    } else if (isSolo()) {
+      sub = `${state.answered} 問中 ${state.correct} 問クリア！\nスコア：${state.scores[0]} pt`;
     } else {
       sub = `${state.answered} 問中 ${state.correct} 問クリア！`;
     }
@@ -315,19 +361,27 @@
     $("#result-sub").style.whiteSpace = "pre-wrap";
 
     // ランキング
-    const ranked = state.players
-      .map((name, i) => ({ name, score: state.scores[i] }))
-      .sort((a, b) => b.score - a.score);
-    const top = ranked[0].score;
     const list = $("#result-scores");
     list.innerHTML = "";
-    ranked.forEach((r, idx) => {
+    if (isSolo()) {
+      // 単独表示：勝者扱いなし、シンプルな単一カード
       const chip = document.createElement("div");
-      chip.className = "score-chip" + (r.score === top && top > 0 ? " win" : "");
-      const crown = r.score === top && top > 0 ? '<span class="crown">👑</span>' : "";
-      chip.innerHTML = `<span class="pname">${escapeHtml(r.name)}${crown}</span><span class="pscore">${r.score} pt</span>`;
+      chip.className = "score-chip";
+      chip.innerHTML = `<span class="pname">${escapeHtml(state.players[0])}</span><span class="pscore">${state.scores[0]} pt</span>`;
       list.appendChild(chip);
-    });
+    } else {
+      const ranked = state.players
+        .map((name, i) => ({ name, score: state.scores[i] }))
+        .sort((a, b) => b.score - a.score);
+      const top = ranked[0].score;
+      ranked.forEach((r) => {
+        const chip = document.createElement("div");
+        chip.className = "score-chip" + (r.score === top && top > 0 ? " win" : "");
+        const crown = r.score === top && top > 0 ? '<span class="crown">👑</span>' : "";
+        chip.innerHTML = `<span class="pname">${escapeHtml(r.name)}${crown}</span><span class="pscore">${r.score} pt</span>`;
+        list.appendChild(chip);
+      });
+    }
   }
 
   $("#result-again").addEventListener("click", () => {
@@ -347,8 +401,42 @@
     el.textContent = window.APP_VERSION || "0.0.0";
   });
 
+  // ====== 更新お知らせ（端末で最初に開いたときに限り表示） ======
+  function maybeShowUpdateNotice() {
+    const cur = window.APP_VERSION || "0.0.0";
+    const log = window.APP_CHANGELOG;
+    if (!log || log.version !== cur) return;
+
+    let last = null;
+    try {
+      last = localStorage.getItem("nazotoki_lastSeenVersion");
+    } catch (e) {
+      // localStorage不可（プライベートモードなど）→ 表示しないで終了
+      return;
+    }
+    if (last === cur) return;
+
+    // モーダルを構築
+    $("#update-title").textContent = log.title || "アップデート";
+    const ul = $("#update-points");
+    ul.innerHTML = "";
+    (log.points || []).forEach((pt) => {
+      const li = document.createElement("li");
+      li.textContent = pt;
+      ul.appendChild(li);
+    });
+    $("#update-modal").classList.remove("hidden");
+
+    const close = () => {
+      $("#update-modal").classList.add("hidden");
+      try { localStorage.setItem("nazotoki_lastSeenVersion", cur); } catch (e) {}
+    };
+    $("#update-close").addEventListener("click", close, { once: true });
+  }
+
   // ====== 初期化 ======
   renderPlayers();
   updateDifficultyHint();
   showScreen("title");
+  maybeShowUpdateNotice();
 })();

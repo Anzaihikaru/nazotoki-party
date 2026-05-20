@@ -17,6 +17,7 @@
     <div class="menu">
       <button class="btn primary" data-goto="setup" data-mode="story">📖 ストーリーモード</button>
       <button class="btn primary" data-goto="setup" data-mode="endless">♾️ ひたすら謎解きモード</button>
+      <button class="btn primary" data-goto="setup" data-mode="solo">👤 おひとり様モード</button>
       <button class="btn ghost" data-goto="howto">遊び方</button>
     </div>
     <p class="footer-note">スマホを回しながら、協力して謎を解こう</p>
@@ -32,13 +33,15 @@
   </header>
   <div class="content">
     <ol class="howto-list">
-      <li>2人以上のプレイヤー名を入力</li>
+      <li>2人以上のプレイヤー名を入力（おひとり様モードは1人）</li>
       <li>難易度を選んでスタート</li>
       <li>順番に1問ずつ謎を解く（協力もOK）</li>
       <li>正解で +10点 / ヒント使用で +5点</li>
+      <li>どうしても分からないときは<strong>📖 答えを表示</strong>でギブアップ（その問題は0点）</li>
       <li>画面右下の<strong>📝メモ</strong>ボタンで自由に書き込める</li>
       <li>ストーリーモードは全問クリアでエンディング</li>
       <li>ひたすらモードは「終了」を押すまで続く</li>
+      <li>おひとり様モードはターン交代なし。気軽に1人で挑戦できる</li>
     </ol>
   </div>
 </section>
@@ -60,7 +63,7 @@
       <p class="hint" id="difficulty-hint">やさしめの謎。初心者・お子様向け。</p>
     </div>
 
-    <div class="field">
+    <div class="field" id="players-field">
       <label>プレイヤー（2〜6人）</label>
       <div id="players-list"></div>
       <div class="row">
@@ -102,9 +105,11 @@
       </div>
       <div class="puzzle-actions">
         <button class="btn ghost small" id="hint-btn">💡 ヒント</button>
+        <button class="btn ghost small" id="reveal-btn">📖 答えを表示</button>
         <button class="btn ghost small" id="pass-btn">パス</button>
       </div>
       <div class="hint-box hidden" id="hint-box"></div>
+      <div class="answer-box hidden" id="answer-box"></div>
     </div>
 
     <div class="scoreboard" id="scoreboard"></div>
@@ -141,6 +146,16 @@
   </div>
   <canvas id="memo-canvas"></canvas>
   <div class="memo-hint">画面に指で書き込めます</div>
+</div>
+
+<!-- 更新お知らせモーダル（初回起動時のみ） -->
+<div id="update-modal" class="update-modal hidden">
+  <div class="update-card">
+    <div class="update-badge">NEW</div>
+    <h3 id="update-title">アップデート</h3>
+    <ul id="update-points" class="update-points"></ul>
+    <button class="btn primary" id="update-close">OK、楽しむ！</button>
+  </div>
 </div>
 
 <!-- トースト -->
