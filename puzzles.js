@@ -821,7 +821,7 @@
         html:
           `<div class="story-pair-list">
             <div class="spl-row"><span>て ・ ぼ ・ ら</span><span class="arr">→</span><span>と ・ ば ・ り</span></div>
-            <div class="spl-row"><span>そ ・ き ・ る</span><span class="arr">→</span><span class="num q">？</span></div>
+            <div class="spl-row"><span>そ ・ き ・ ろ</span><span class="arr">→</span><span class="num q">？</span></div>
           </div>`,
         hint: "母音を1つすすめると…？",
         a: ["さくら", "サクラ", "桜"],
