@@ -170,7 +170,10 @@
     state.correct = 0;
 
     if (state.mode === "story") {
-      state.puzzles = window.STORY.chapters.slice();
+      const story = (window.STORY_BY_DIFFICULTY && window.STORY_BY_DIFFICULTY[state.difficulty])
+        || window.STORY;
+      state.currentStory = story;
+      state.puzzles = story.chapters.slice();
     } else {
       // endless と solo は同じ：難易度ごとのプールからシャッフル
       const pool = window.PUZZLES[state.difficulty];
@@ -351,7 +354,7 @@
 
     let sub;
     if (isStory) {
-      sub = window.STORY.ending;
+      sub = (state.currentStory && state.currentStory.ending) || window.STORY.ending;
     } else if (isSolo()) {
       sub = `${state.answered} 問中 ${state.correct} 問クリア！\nスコア：${state.scores[0]} pt`;
     } else {

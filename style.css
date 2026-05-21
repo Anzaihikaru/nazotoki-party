@@ -437,6 +437,107 @@ input { font-family: inherit; }
 /* グリッドパズル：3列を明示する派生クラス */
 .grid-puzzle.three { grid-template-columns: repeat(3, 1fr); }
 
+/* ===== Story visuals (v0.4.0) ===== */
+.scramble-chars {
+  background: rgba(0,0,0,0.3);
+  border-radius: 14px;
+  padding: 18px 12px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: #fbcf67;
+  letter-spacing: 0.18em;
+  margin: 8px 0 4px;
+}
+.story-pair-list {
+  background: rgba(0,0,0,0.3);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.story-pair-list.small .spl-row,
+.story-pair-list .spl-row.small { font-size: 13px; }
+.spl-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: #f4f1ff;
+}
+.spl-row > span:first-child { text-align: right; font-weight: 600; }
+.spl-row > span:last-child { text-align: left; font-weight: 700; }
+.spl-row .arr { color: #fbcf67; font-weight: 700; }
+.spl-row .num { color: #fbcf67; font-weight: 800; font-size: 18px; }
+.spl-row .num.q { color: #ff8fc7; }
+
+.story-list {
+  background: rgba(0,0,0,0.3);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 16px;
+  color: #f4f1ff;
+  line-height: 1.6;
+}
+
+.like-dislike {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 14px;
+  padding: 14px;
+}
+.ld-col {
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.ld-head {
+  font-weight: 800;
+  font-size: 14px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(255,255,255,0.15);
+  margin-bottom: 6px;
+}
+.ld-col.like .ld-head { color: #6acf90; }
+.ld-col.dislike .ld-head { color: #e87575; }
+.ld-question {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fbcf67;
+}
+
+.keypad-hint {
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  color: #d8d2ef;
+}
+.kh-row { display: flex; align-items: center; gap: 10px; }
+.kh-key {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  background: rgba(251, 207, 103, 0.25);
+  color: #fbcf67;
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
 /* ===== Update modal (v0.3.0) ===== */
 .update-modal {
   position: fixed; inset: 0;

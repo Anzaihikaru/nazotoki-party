@@ -1,22 +1,24 @@
 /* ============================================================
  *  謎解きパーティー  -  puzzles.js
+ *  v0.4.0 (2026-05-21)
+ *    : ストーリーを難易度別に刷新（ノーマル4話・ハード5話）
  *  v0.3.0 (2026-05-20)
  *    : 視覚謎を30問追加 / 答えを表示・更新通知・おひとり様モード対応
  *  v0.2.0 (2026-05-20)
  *    : 謎を全面リニューアル
  * ============================================================ */
 (function () {
-  window.APP_VERSION = "0.3.0";
+  window.APP_VERSION = "0.4.0";
 
   // 今回のバージョンで「何が変わったか」を、初回起動時に通知する。
   window.APP_CHANGELOG = {
-    version: "0.3.0",
-    title: "v0.3.0 アップデート",
+    version: "0.4.0",
+    title: "v0.4.0 アップデート",
     points: [
-      "🆕 視覚パズルを30問追加（視点変更・図形数え・鏡像など）",
-      "💡 答えを表示ボタンを追加（行き詰まりリリーフ）",
-      "👤 おひとり様モードを追加（1人で気軽に挑戦）",
-      "📢 更新お知らせ機能を追加",
+      "📖 ストーリーが難易度別に分かれました！",
+      "🌱 ノーマル：「お母さんのたんじょう日 宝さがし」（新規・全4話）",
+      "🌌 ハード：「消えた数学者の遺書」（新規・全5話）",
+      "💍 イージー：「消えた指輪事件」（従来通り・全5話）",
     ],
   };
 
@@ -694,9 +696,156 @@
   };
 
   // ============================================================
-  //  STORY  -  「消えた指輪事件」
+  //  STORY  -  難易度別ストーリー
   // ============================================================
-  const STORY = {
+
+  // -------- NORMAL：「お母さんのたんじょう日 宝さがし」（全4話）--------
+  const STORY_NORMAL = {
+    title: "お母さんのたんじょう日 宝さがし",
+    intro:
+      "今日は君のたんじょう日！\n朝、テーブルにお母さんからの手紙が置いてあった。\n「家のどこかにプレゼントを隠したよ。4つの謎を解いてね♪」",
+    chapters: [
+      {
+        type: "📖 第一話 - キッチンの紙きれ",
+        q:
+          "今日は君のたんじょう日！\nテーブルに、お母さんからの手紙が置いてあった。\n「家のどこかにプレゼントを隠したよ。\n  4つの謎を解いてね♪」\n\n――最初のメモ――\n\n並び変えると3つの言葉。\n共通点は？",
+        html:
+          `<div class="scramble-chars">ぐ ・ ん ・ ま ・ ろ ・ さ ・ い ・ た ・ ま</div>`,
+        hint: "3つの生き物が出てきます。共通点は？",
+        a: ["魚", "さかな", "サカナ"],
+      },
+      {
+        type: "📖 第二話 - 水槽のとなりの紙",
+        q:
+          "「魚」── 水槽のガラスに、次のメモが貼ってあった。",
+        html:
+          `<div class="story-pair-list">
+            <div class="spl-row"><span>いぬ</span><span class="arr">→</span><span class="num">3</span></div>
+            <div class="spl-row"><span>ねこ</span><span class="arr">→</span><span class="num">4</span></div>
+            <div class="spl-row"><span>ぞう</span><span class="arr">→</span><span class="num">3</span></div>
+            <div class="spl-row"><span>きりん</span><span class="arr">→</span><span class="num q">？</span></div>
+          </div>`,
+        hint: "ローマ字で書いてみると…？",
+        a: ["5", "５", "ご", "五"],
+      },
+      {
+        type: "📖 第三話 - 5番目の本棚",
+        q:
+          "「5」── リビングの5番目の本棚に、次のメモが貼ってあった。\n\n仲間外れは？",
+        html:
+          `<div class="story-list">
+            <div class="sl-row">① しんぶんし</div>
+            <div class="sl-row">② たけやぶやけた</div>
+            <div class="sl-row">③ みなみ</div>
+            <div class="sl-row">④ トマト</div>
+            <div class="sl-row">⑤ やまびこ</div>
+          </div>`,
+        hint: "他の4つは上から読んでも下から読んでも同じ「回文」だ。",
+        a: ["やまびこ", "ヤマビコ", "⑤", "5", "５"],
+      },
+      {
+        type: "📖 最終話 - 山の絵の裏",
+        q:
+          "「やまびこ」── 山の絵の裏に、最後のメモが落ちていた。\n\nわたしがすきなもの！\nじゃあ、「ばなな」と「めろん」、わたしが好きなのはどっち？",
+        html:
+          `<div class="like-dislike">
+            <div class="ld-col like">
+              <div class="ld-head">好き</div>
+              <div>ぶどう</div><div>いちご</div><div>りんご</div>
+            </div>
+            <div class="ld-col dislike">
+              <div class="ld-head">きらい</div>
+              <div>みかん</div><div>すいか</div><div>もも</div>
+            </div>
+          </div>`,
+        hint: "「濁点（゛）」がつく言葉が好き。",
+        a: ["ばなな", "バナナ"],
+      },
+    ],
+    ending:
+      "答えは「ばなな」！\nキッチンへ駆けつけると、テーブルにバナナ味のケーキと、大きなプレゼントの箱。\n\nお母さん「お誕生日おめでとう♪」\n\n中身は、ずっとほしかった図鑑だった。\n\n   〜 完 〜",
+  };
+
+  // -------- HARD：「消えた数学者の遺書」（全5話）--------
+  const STORY_HARD = {
+    title: "消えた数学者の遺書",
+    intro:
+      "天才数学者・桜井博士が、研究室から忽然と姿を消した。\n机に残されていたのは、5枚の暗号メモ。",
+    chapters: [
+      {
+        type: "📖 第一章 - 机に残された数字",
+        q:
+          "天才数学者・桜井博士が、研究室から忽然と姿を消した。\n机に残されていたのは、5枚の暗号メモ。\n\n――1枚目――",
+        html:
+          `<div class="story-pair-list">
+            <div class="spl-row"><span>11・12・32・44・93</span><span class="arr">→</span><span>愛してる</span></div>
+            <div class="spl-row"><span>41・21・91・75・55</span><span class="arr">→</span><span class="num q">？</span></div>
+          </div>`,
+        hint: null,
+        a: ["たからもの", "宝物", "宝もの", "タカラモノ", "宝"],
+      },
+      {
+        type: "📖 第二章 - 鞄の中の数列",
+        q:
+          "「たからもの」── 棚の奥から博士の革鞄が出てきた。\n中には、新しい紙きれが1枚。",
+        html:
+          `<div class="story-pair-list">
+            <div class="spl-row"><span>2 ・ 1 ・ 7</span><span class="arr">→</span><span style="font-size:32px">👜</span></div>
+            <div class="spl-row"><span>20 ・ 1 ・ 2 ・ 12 ・ 5</span><span class="arr">→</span><span class="num q">？</span></div>
+          </div>`,
+        hint: "２はB、１はA、７はG　ということは…？",
+        a: ["TABLE", "table", "Table", "テーブル"],
+      },
+      {
+        type: "📖 第三章 - テーブルの裏の手帳",
+        q:
+          "「TABLE」── 研究テーブルの裏に、手帳が貼り付けられていた。",
+        html:
+          `<div class="story-pair-list">
+            <div class="spl-row"><span>れ</span><span class="arr">→</span><span>え</span></div>
+            <div class="spl-row"><span>み</span><span class="arr">→</span><span>い</span></div>
+            <div class="spl-row"><span>さ</span><span class="arr">→</span><span class="num q">①</span></div>
+            <div class="spl-row"><span>と</span><span class="arr">→</span><span class="num q">②</span></div>
+            <div class="spl-row"><span>し</span><span class="arr">→</span><span class="num q">③</span></div>
+          </div>
+          <div class="story-pair-list" style="margin-top:10px;">
+            <div class="spl-row"><span>①②③</span><span class="arr">→</span><span class="num q">？</span></div>
+          </div>`,
+        hint: "さ=a、と=o、し=i　→　a・o・i　→　？",
+        a: ["あおい", "アオイ", "青", "青い", "aoi", "AOI"],
+      },
+      {
+        type: "📖 第四章 - 青い額の裏",
+        q:
+          "「あおい」── 研究室の壁にかかった青い額の裏に、暗号が貼られていた。",
+        html:
+          `<div class="story-pair-list">
+            <div class="spl-row"><span>て ・ ぼ ・ ら</span><span class="arr">→</span><span>と ・ ば ・ り</span></div>
+            <div class="spl-row"><span>そ ・ き ・ る</span><span class="arr">→</span><span class="num q">？</span></div>
+          </div>`,
+        hint: "母音を1つすすめると…？",
+        a: ["さくら", "サクラ", "桜"],
+      },
+      {
+        type: "📖 最終章 - 桜の木の根元",
+        q:
+          "「さくら」── 窓から見える1本の桜の木。\n根元の土を払うと、最後の手紙が出てきた。",
+        html:
+          `<div class="story-pair-list">
+            <div class="spl-row small"><span>なすび／ぞうきん／とけい／きって</span><span class="arr">→</span><span>なぞとき</span></div>
+            <div class="spl-row small"><span>いなずま／どあ</span><span class="arr">→</span><span>インド</span></div>
+            <div class="spl-row small"><span>あいす／しるもの／てんじょう／るびー</span><span class="arr">→</span><span class="num q">？</span></div>
+          </div>`,
+        hint: "①ローマ字で書いてみると…？\n②頭文字に注目すると…？",
+        a: ["愛してる", "あいしてる", "アイシテル", "AISHITERU", "aishiteru"],
+      },
+    ],
+    ending:
+      "暗号がたどり着いた答えは── 「愛してる」。\n\n博士は失踪したのではなかった。\n長く疎遠だった家族へ、最後にどうしても伝えたかった一言を、\n5つの謎に託して、故郷へ帰っていたのだ。\n\n机の引き出しの底からは、家族写真と1通の航空券が見つかった。\n\n   〜 完 〜",
+  };
+
+  // -------- EASY：旧版「消えた指輪事件」（全5話）をそのまま据え置き --------
+  const STORY_EASY = {
     title: "消えた指輪事件",
     intro:
       "おばあちゃん家に泊まりに来た夜。\n大切なルビーの指輪が消えていた…！\n君は探偵になって、謎を解き明かそう。",
@@ -741,6 +890,14 @@
       "本棚の3冊目の本の中から、ルビーの指輪を発見！\nお父さんは「サプライズで磨いてあげようと思って…」と苦笑い。\nなんだ、犯人なんていなかった。\nみんなで笑った、夜更けのリビング。\n\n   〜 完 〜",
   };
 
+  // 旧バージョン互換のため STORY も残す（easyにエイリアス＝旧来の挙動）
+  const STORY = STORY_EASY;
+  const STORY_BY_DIFFICULTY = {
+    easy: STORY_EASY,
+    normal: STORY_NORMAL,
+    hard: STORY_HARD,
+  };
+
   // ============================================================
   //  難易度の説明
   // ============================================================
@@ -753,5 +910,6 @@
   // ---------- export ----------
   window.PUZZLES = ENDLESS;
   window.STORY = STORY;
+  window.STORY_BY_DIFFICULTY = STORY_BY_DIFFICULTY;
   window.DIFFICULTY_INFO = DIFFICULTY_INFO;
 })();
